@@ -5,6 +5,6 @@ import { getMessages, getUsersForSidebar, sendMessage } from "../controllers/mes
 const messageRouter = express.Router()
 
 messageRouter.get("/users" , ProtectRoute  ,getUsersForSidebar)
-messageRouter.get("/:id" , ProtectRoute  ,getMessages)
-messageRouter.post("/send/:id" , ProtectRoute  ,sendMessage)
+// messageRouter.get("/:id" , ProtectRoute  ,getMessages)
+// messageRouter.post("/send/:id" , ProtectRoute  ,sendMessage)
 export default messageRouter
