@@ -1,37 +1,36 @@
-import User from "../models/user.model.js";
-import Message from "../models/message.model.js";
-
-import cloudinary from "../lib/cloudinary.js";
+import cloudinary from "../lib/cloudinay.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
+import messageModel from "../models/message.model.js";
+import User from "../models/user.model.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
-    const loggedInUserId = req.user._id;
-    const filteredUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+    const loggedInUser = req.user._id;
 
-    res.status(200).json(filteredUsers);
+    const filteredUsers = await User.find({
+      _id: { $ne: loggedInUser },
+    }).select("-password");
+    return res.status(200).json(filteredUsers);
   } catch (error) {
-    console.error("Error in getUsersForSidebar: ", error.message);
-    res.status(500).json({ error: "Internal server error" });
+    console.log("error in getUsersForSidebar controller", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 export const getMessages = async (req, res) => {
   try {
-    const { id: userToChatId } = req.params;
     const myId = req.user._id;
+    const { id: userChatId } = req.params;
 
-    const messages = await Message.find({
+    const messages = await messageModel.find({
       $or: [
-        { senderId: myId, receiverId: userToChatId },
-        { senderId: userToChatId, receiverId: myId },
+        { senderId: myId, receiverId: userChatId },
+        { senderId: userChatId, receiverId: myId },
       ],
     });
-
-    res.status(200).json(messages);
+    return res.status(200).json(messages);
   } catch (error) {
-    console.log("Error in getMessages controller: ", error.message);
-    res.status(500).json({ error: "Internal server error" });
+    console.log("error in getMessages controller", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -48,7 +47,7 @@ export const sendMessage = async (req, res) => {
       imageUrl = uploadResponse.secure_url;
     }
 
-    const newMessage = new Message({
+    const newMessage = new messageModel({
       senderId,
       receiverId,
       text,
