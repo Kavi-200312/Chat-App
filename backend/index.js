@@ -16,8 +16,8 @@ const __dirname = path.resolve();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.json({ limit: "5000mb" }));
+app.use(express.urlencoded({ limit: "5000mb", extended: true }));
 app.use((err, req, res, next) => {
   if (err.type === "entity.too.large") {
     return res.status(413).json({ message: "Payload too large" });
