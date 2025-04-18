@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [imagecompressedFile, setImagecompressedFile] = useState(null);
   const fileInputRef = useRef(null);
   const { sendMessage ,isSendMessageLoading} = UseChatStore();
 
@@ -38,18 +39,15 @@ const handleImageChange = async (e) => {
 
   // Compression options
   const options = {
-    maxSizeMB: 1,
+    maxSizeMB: 0.05,
     maxWidthOrHeight: 800, // Resize too
     useWebWorker: true,
   };
 
   try {
     const compressedFile = await imageCompression(file, options);
-
-    if (compressedFile.size > 1024 * 1024) {
-      toast.error("Image is still too large after compression (max 1MB)");
-      return;
-    }
+    console.log(compressedFile.size ,"compressedFile.size---->");
+    setImagecompressedFile(compressedFile)
 
     // Convert to base64 if you still need it
     const base64 = await imageCompression.getDataUrlFromFile(compressedFile);
@@ -68,7 +66,10 @@ const handleImageChange = async (e) => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
-
+    if (imagePreview && (imagecompressedFile > 51.2 * 1024)) {
+      toast.error("Image is still too large after compression (max 1MB)");
+      return;
+    }
     try {
       await sendMessage({
         text: text.trim(),
