@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { UseChatStore } from "../Store/UseChatStore";
 import { Image, Send, X } from "lucide-react";
+import imageCompression from "browser-image-compression";
 import toast from "react-hot-toast";
 
 const MessageInput = () => {
@@ -23,43 +24,41 @@ const MessageInput = () => {
   //   reader.readAsDataURL(file);
   // };
 
-  // const removeImage = () => {
-  //   setImagePreview(null);
-  //   if (fileInputRef.current) fileInputRef.current.value = "";
-  // };
 
-  // const handleSendMessage = async (e) => {
-  //   e.preventDefault();
-  //   if (!text.trim() && !imagePreview) return;
 
-  //   try {
-  //     await sendMessage({
-  //       text: text.trim(),
-  //       image: imagePreview,
-  //     });
+const handleImageChange = async (e) => {
+  const file = e.target.files[0];
 
-  //     // Clear form
-  //     setText("");
-  //     setImagePreview(null);
-  //     if (fileInputRef.current) fileInputRef.current.value = "";
-  //   } catch (error) {
-  //     console.error("Failed to send message:", error);
-  //   }
-  // };
+  if (!file) return;
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+  if (!file.type.startsWith("image/")) {
+    toast.error("Please select an image file");
+    return;
+  }
+
+  // Compression options
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 800, // Resize too
+    useWebWorker: true,
+  };
+
+  try {
+    const compressedFile = await imageCompression(file, options);
+
+    if (compressedFile.size > 1024 * 1024) {
+      toast.error("Image is still too large after compression (max 1MB)");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
+    // Convert to base64 if you still need it
+    const base64 = await imageCompression.getDataUrlFromFile(compressedFile);
+    setImagePreview(base64); // or send to server
+  } catch (err) {
+    console.error("Image compression failed:", err);
+    toast.error("Image compression failed");
+  }
+};
 
   const removeImage = () => {
     setImagePreview(null);
