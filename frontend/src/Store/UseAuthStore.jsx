@@ -21,7 +21,7 @@ export const UseAuthStore = create((set, get) => ({
       set({ authUser: res.data });
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response.data.message || "Unauthorized entry");
+      // toast.error(error.response.data.message || "Unauthorized entry");
       // console.log("Error in checkAuth:", error);
       set({ authUser: null });
     } finally {
